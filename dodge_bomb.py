@@ -13,7 +13,6 @@ DELTA = {  # 移動量辞書
     pg.K_RIGHT: (+5, 0),
 }
 
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -32,13 +31,11 @@ def check_bound(rct:pg.Rect)->tuple[bool,bool]:
 
 def gameover(screen: pg.Surface) -> None:
     """
-    ゲームオーバーの時に半透明の黒い画面上に「Game Over」
-    と表示し、こうかとんの画像を張り付ける
+    ゲームオーバー時に、半透明の黒い画面上に「Game Over」
+    と表示し、泣いているこうかとん画像を張り付ける
     """
-
     bc_img=pg.image.load("fig/8.png")
 
-    
     black_img=pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(black_img,(0,0,0),pg.Rect(0,0,WIDTH,HEIGHT)) 
     black_img.set_alpha(150) #半透明
@@ -53,6 +50,30 @@ def gameover(screen: pg.Surface) -> None:
     screen.blit(txt, [400, 300]) #文字
     pg.display.update() #表示
     time.sleep(5) #5秒間表示させる
+
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    サイズの異なる爆弾Surfaceを要素としたリストと加速度リストを返す
+    """
+    sbb_accs = [a for a in range(1, 11)]
+    acceleration=[]
+    for r in range(1,11):
+        bb_img=pg.Surface((20*r,20*r))
+        pg.draw.circle(bb_img,(255,0,0),(10*r,10*r),10*r)
+        bb_img.set_colorkey((0,0,0))
+        acceleration.append(bb_img)
+    return acceleration,sbb_accs
+
+# def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+#     """
+#     移動量の合計値タプルに対応する向きの画像Surfaceを返す
+#     """
+#     if sum_mv[0]<0:
+#         bg_img =pg.transform.flip(bg_img,True,False)
+
+#def calc_orientation(org: pg.Rect, dst: pg.Rect,
+#    current_xy: tuple[float, float]) -> tuple[float, float]:
+    
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -69,7 +90,8 @@ def main():
     bb_rct.centerx=random.randint(0,WIDTH)
     bb_rct.centery=random.randint(0,HEIGHT)
     vx, vy = +5, +5  # 爆弾の移動速度
-
+    bb_imgs, bb_accs = init_bb_imgs()
+    print(bb_imgs, bb_accs)
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -87,6 +109,8 @@ def main():
             if key_lst[key]:
                 sum_mv[0]+=mv[0]
                 sum_mv[1]+=mv[1]
+        kk_img = get_kk_img((0, 0))
+        kk_img = get_kk_img(tuple(sum_mv))
         
         # if key_lst[pg.K_UP]:
         #     sum_mv[1] -= 5
@@ -100,7 +124,10 @@ def main():
         if check_bound(kk_rct) != (True,True):
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])#移動をなかったことにする
         screen.blit(kk_img, kk_rct)
-        bb_rct.move_ip(vx,vy)
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        avy = vy*bb_accs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]
+        bb_rct.move_ip(avx,avy)
         yoko,tate=check_bound(bb_rct)
         if not yoko:
             vx*=-1
@@ -110,6 +137,8 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
+        vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
+
 
 
 if __name__ == "__main__":
