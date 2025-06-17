@@ -47,6 +47,7 @@ def check_bound(rct:pg.Rect)->tuple[bool,bool]:
         tate = False
     return yoko,tate
 
+
 def gameover(screen: pg.Surface) -> None:
     """
     ゲームオーバー時に、半透明の黒い画面上に「Game Over」
