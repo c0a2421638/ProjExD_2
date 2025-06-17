@@ -12,6 +12,24 @@ DELTA = {  # 移動量辞書
     pg.K_LEFT: (-5, 0),
     pg.K_RIGHT: (+5, 0),
 }
+face={
+    (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),       # 静止 
+    (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 270, 0.9),    # 上  
+    (0, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 0.9),      # 下 
+    (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 180, 0.9),    # 左  
+    (5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),       # 右  
+    (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 225, 0.9),   # 左上  
+    (5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 315, 0.9),    # 右上
+    (-5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 135, 0.9),    # 左下
+    (5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 0.9)      # 右下 
+}
+
+def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+    """
+    移動量の合計値タプルに対応する向きの画像Surfaceを返す
+    """
+    if sum_mv[0]<0:
+        bg_img =pg.transform.flip(bg_img,True,False)
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -51,6 +69,7 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update() #表示
     time.sleep(5) #5秒間表示させる
 
+
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     サイズの異なる爆弾Surfaceを要素としたリストと加速度リストを返す
@@ -63,16 +82,6 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_img.set_colorkey((0,0,0))
         acceleration.append(bb_img)
     return acceleration,sbb_accs
-
-# def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
-#     """
-#     移動量の合計値タプルに対応する向きの画像Surfaceを返す
-#     """
-#     if sum_mv[0]<0:
-#         bg_img =pg.transform.flip(bg_img,True,False)
-
-#def calc_orientation(org: pg.Rect, dst: pg.Rect,
-#    current_xy: tuple[float, float]) -> tuple[float, float]:
     
 
 def main():
@@ -138,6 +147,7 @@ def main():
         tmr += 1
         clock.tick(50)
         vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
+
 
 
 
