@@ -14,6 +14,18 @@ DELTA={
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
+def check_bound(rct:pg.Rect)->tuple[bool,bool]:
+    """
+    引数：こうかとんRectまたは爆弾Rect
+    戻り値：縦方向、横方向の画面内判定
+    画面内ならTrue,外ならFalse
+    """
+    yoko,tate=True,True #初期値は画面の中
+    if rct.left < 0 or WIDTH < rct.right: #画面の外に行ったとき(横方向)
+        yoko = False
+    if rct.top < 0 or HEIGHT > rct.bottom:#画面の外に行ったとき(縦方向)
+        tate = False
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -22,7 +34,7 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     bb_img=pg.Surface((20,20))  #爆弾用空のサーフェースを作る
-    pg.draw.circle(bb_img,(255,0,),(10,10),10)
+    pg.draw.circle(bb_img,(255,0,0),(10,10),10)
     bb_img.set_colorkey((0,0,0))
     bb_rct = bb_img.get_rect()
     bb_rct.centerx=random.randint(0,WIDTH)
@@ -52,8 +64,15 @@ def main():
         # if key_lst[pg.K_RIGHT]:
         #     sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True,True):
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])#移動をなかったことにする
         screen.blit(kk_img, kk_rct)
         bb_rct.move_ip(vx,vy)
+        yoko,tate=check_bound(bb_rct)
+        if not yoko:
+            vx*=-1
+        if not tate:
+            vy*=-1
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
