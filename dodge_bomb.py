@@ -5,11 +5,11 @@ import pygame as pg
 
 
 WIDTH, HEIGHT = 1100, 650
-DELTA={
-    pg.K_UP:(0,-5),
-    pg.K_DOWN:(0,+5),
-    pg.K_LEFT:(-5,0),
-    pg.K_RIGHT:(+5,0),
+DELTA = {  # 移動量辞書
+    pg.K_UP: (0, -5),
+    pg.K_DOWN: (0, +5),
+    pg.K_LEFT: (-5, 0),
+    pg.K_RIGHT: (+5, 0),
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,8 +23,9 @@ def check_bound(rct:pg.Rect)->tuple[bool,bool]:
     yoko,tate=True,True #初期値は画面の中
     if rct.left < 0 or WIDTH < rct.right: #画面の外に行ったとき(横方向)
         yoko = False
-    if rct.top < 0 or HEIGHT > rct.bottom:#画面の外に行ったとき(縦方向)
+    if rct.top < 0 or HEIGHT < rct.bottom:#画面の外に行ったとき(縦方向)
         tate = False
+    return yoko,tate
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -46,6 +47,9 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        if kk_rct.colliderect(bb_rct):
+            print("ゲームオーバー")
+            return
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
