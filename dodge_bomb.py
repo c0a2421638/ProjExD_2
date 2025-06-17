@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 import pygame as pg
 
 
@@ -11,6 +12,8 @@ DELTA = {  # 移動量辞書
     pg.K_LEFT: (-5, 0),
     pg.K_RIGHT: (+5, 0),
 }
+
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -27,6 +30,30 @@ def check_bound(rct:pg.Rect)->tuple[bool,bool]:
         tate = False
     return yoko,tate
 
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバーの時に半透明の黒い画面上に「Game Over」
+    と表示し、こうかとんの画像を張り付ける
+    """
+
+    bc_img=pg.image.load("fig/8.png")
+
+    
+    black_img=pg.Surface((WIDTH,HEIGHT))
+    pg.draw.rect(black_img,(0,0,0),pg.Rect(0,0,WIDTH,HEIGHT)) 
+    black_img.set_alpha(150) #半透明
+    black_rct = black_img.get_rect()
+    screen.blit(black_img, black_rct)
+
+    screen.blit(bc_img, [350,300])#右こうかとん
+    screen.blit(bc_img,[720,300])#左こうかとん
+
+    fonto=pg.font.Font(None,80)
+    txt=fonto.render("Game Over",True,(255,255,255))
+    screen.blit(txt, [400, 300]) #文字
+    pg.display.update() #表示
+    time.sleep(5) #5秒間表示させる
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -34,6 +61,7 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+
     bb_img=pg.Surface((20,20))  #爆弾用空のサーフェースを作る
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)
     bb_img.set_colorkey((0,0,0))
@@ -41,6 +69,7 @@ def main():
     bb_rct.centerx=random.randint(0,WIDTH)
     bb_rct.centery=random.randint(0,HEIGHT)
     vx, vy = +5, +5  # 爆弾の移動速度
+
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -48,7 +77,7 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bb_rct):
-            print("ゲームオーバー")
+            gameover(screen)
             return
         screen.blit(bg_img, [0, 0]) 
 
